@@ -17,8 +17,8 @@ fn main() {
 fn parse_file(path: &str) -> u32 {
     let mut all_numbers: Vec<u32> = Vec::new();
     for line in read_to_string(&path).unwrap().lines() {
-        let l = line.to_string();
-        let numbers = parse_line(&l);
+        let line = line.to_string();
+        let numbers = parse_line(&line);
         // println!("{:?}", numbers);
         let number: u32 = numbers.first().unwrap() * 10 + numbers.last().unwrap();
         // println!("{:?}", number);
