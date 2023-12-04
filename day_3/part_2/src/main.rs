@@ -1,6 +1,7 @@
 use std::env;
 use std::fs::read_to_string;
 
+// answer is too low
 fn main() {
     let mut path = env::current_dir().unwrap();
     path.push("input.txt");
@@ -10,41 +11,42 @@ fn main() {
         Some(s) => parse_file(&s),
     };
 
-    let mut all_positions: Vec<(usize, usize)> = Vec::new();
+    let mut all_positions: Vec<Vec<(usize, usize)>> = Vec::new();
 
     for (row_index, row) in parsed_array.iter().enumerate() {
         for (char_index, char) in row.char_indices() {
             // println!("Current pos: ({},{})", row_index, char_index);
             //top row
-            if (char != '.') && char.is_ascii_digit() {
+            if (char != '.') && !char.is_ascii_digit() && (char == '*') {
+                let mut per_gear: Vec<(usize, usize)> = Vec::new();
                 if row_index > 0 {
                     let top_row = &parsed_array[row_index - 1];
                     if (top_row.chars().nth(char_index).unwrap() != '.')
-                        && !(top_row.chars().nth(char_index).unwrap().is_ascii_digit())
+                        && (top_row.chars().nth(char_index).unwrap().is_ascii_digit())
                     {
-                        all_positions.append(&mut vec![(row_index, char_index)])
+                        per_gear.append(&mut vec![(row_index - 1, char_index)])
                     }
 
                     if char_index > 0 {
                         if (top_row.chars().nth(char_index - 1).unwrap() != '.')
-                            && !(top_row
+                            && (top_row
                                 .chars()
                                 .nth(char_index - 1)
                                 .unwrap()
                                 .is_ascii_digit())
                         {
-                            all_positions.append(&mut vec![(row_index, char_index)])
+                            per_gear.append(&mut vec![(row_index - 1, char_index - 1)])
                         };
                     }
                     if char_index < row.len() - 1 {
                         if (top_row.chars().nth(char_index + 1).unwrap() != '.')
-                            && !(top_row
+                            && (top_row
                                 .chars()
                                 .nth(char_index + 1)
                                 .unwrap()
                                 .is_ascii_digit())
                         {
-                            all_positions.append(&mut vec![(row_index, char_index)])
+                            per_gear.append(&mut vec![(row_index - 1, char_index + 1)])
                         };
                     }
                 }
@@ -52,16 +54,16 @@ fn main() {
                 //middle row
                 if char_index > 0 {
                     if (row.chars().nth(char_index - 1).unwrap() != '.')
-                        && !(row.chars().nth(char_index - 1).unwrap().is_ascii_digit())
+                        && (row.chars().nth(char_index - 1).unwrap().is_ascii_digit())
                     {
-                        all_positions.append(&mut vec![(row_index, char_index)])
+                        per_gear.append(&mut vec![(row_index, char_index - 1)])
                     };
                 }
                 if char_index < row.len() - 1 {
                     if (row.chars().nth(char_index + 1).unwrap() != '.')
-                        && !(row.chars().nth(char_index + 1).unwrap().is_ascii_digit())
+                        && (row.chars().nth(char_index + 1).unwrap().is_ascii_digit())
                     {
-                        all_positions.append(&mut vec![(row_index, char_index)])
+                        per_gear.append(&mut vec![(row_index, char_index + 1)])
                     };
                 }
 
@@ -69,70 +71,68 @@ fn main() {
                 if row_index < parsed_array.len() - 1 {
                     let bottom_row = &parsed_array[row_index + 1];
                     if (bottom_row.chars().nth(char_index).unwrap() != '.')
-                        && !(bottom_row.chars().nth(char_index).unwrap().is_ascii_digit())
+                        && (bottom_row.chars().nth(char_index).unwrap().is_ascii_digit())
                     {
-                        all_positions.append(&mut vec![(row_index, char_index)])
+                        per_gear.append(&mut vec![(row_index + 1, char_index)])
                     }
 
                     if char_index > 0 {
                         if (bottom_row.chars().nth(char_index - 1).unwrap() != '.')
-                            && !(bottom_row
+                            && (bottom_row
                                 .chars()
                                 .nth(char_index - 1)
                                 .unwrap()
                                 .is_ascii_digit())
                         {
-                            all_positions.append(&mut vec![(row_index, char_index)])
+                            per_gear.append(&mut vec![(row_index + 1, char_index - 1)])
                         };
                     }
                     if char_index < row.len() - 1 {
                         if (bottom_row.chars().nth(char_index + 1).unwrap() != '.')
-                            && !(bottom_row
+                            && (bottom_row
                                 .chars()
                                 .nth(char_index + 1)
                                 .unwrap()
                                 .is_ascii_digit())
                         {
-                            all_positions.append(&mut vec![(row_index, char_index)])
+                            per_gear.append(&mut vec![(row_index + 1, char_index + 1)])
                         };
                     }
                 }
+                all_positions.append(&mut vec![per_gear])
             }
-        }
-    }
-
-    let mut last_pos: &(usize, usize) = &all_positions[0];
-    let mut positions_without_duplicates: Vec<(usize, usize)> = Vec::new();
-
-    for position in &all_positions {
-        if (last_pos.0 == position.0
-            && !(last_pos.1 == position.1 - 1)) //|| last_pos.1 == position.1 - 2
-            || (last_pos.0 != position.0)
-        {
-            positions_without_duplicates.append(&mut vec![position.clone()]);
-            last_pos = position;
         }
     }
 
     // println!("{:?}", all_positions);
     // println!("{:?}", positions_without_duplicates);
 
-    let mut all_numbers: Vec<u32> = Vec::new();
+    let mut all_number_pairs: Vec<Vec<u32>> = Vec::new();
     let mut last_num = 0;
 
-    for pos in &positions_without_duplicates {
+    for pos in &all_positions {
         // println!("Current pos: ({},{})", pos.0, pos.1);
-        let num = traverse_number(&parsed_array[pos.0].chars().collect(), pos.1);
-        if last_num != num {
-            all_numbers.append(&mut vec![num]);
-        }
+        let mut num_vec: Vec<u32> = Vec::new();
+        for p in pos {
+            let num = traverse_number(&parsed_array[p.0].chars().collect(), p.1);
+            if last_num != num {
+                num_vec.append(&mut vec![num]);
+            }
 
-        last_num = num;
+            last_num = num;
+        }
+        if num_vec.len() >= 2 {
+            all_number_pairs.append(&mut vec![num_vec]);
+        }
     }
 
-    // println!("{:?}", all_numbers);
+    println!("{:?}", all_number_pairs);
 
-    let sum: u32 = all_numbers.iter().sum();
+    let sum: u32 = all_number_pairs
+        .iter()
+        .fold(0, |acc, n_vec: &Vec<u32>| -> u32 {
+            acc + n_vec[0] * n_vec[1]
+        });
     println!("{}", sum);
 }
 
