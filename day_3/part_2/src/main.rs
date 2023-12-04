@@ -126,13 +126,16 @@ fn main() {
         }
     }
 
+    // Check by fucking hand to see what i missed
+
     println!("{:?}", all_number_pairs);
 
-    let sum: u32 = all_number_pairs
-        .iter()
-        .fold(0, |acc, n_vec: &Vec<u32>| -> u32 {
-            acc + n_vec[0] * n_vec[1]
-        });
+    let mut nums: Vec<u32> = Vec::new();
+
+    for pair in all_number_pairs {
+        nums.append(&mut vec![pair[0] * pair[1]])
+    }
+    let sum: u32 = nums.iter().sum();
     println!("{}", sum);
 }
 
