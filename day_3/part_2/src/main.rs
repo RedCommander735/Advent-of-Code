@@ -96,9 +96,8 @@ fn main() {
         }
     }
 
-    let mut all_number_pairs: Vec<Vec<u32>> = Vec::new();
+    let mut nums: Vec<u32> = Vec::new();
     let mut num_starting_pos: Vec<(usize, usize)> = Vec::new();
-    let mut last_num = 0;
 
     for pos in &all_positions {
         let mut num_vec: Vec<u32> = Vec::new();
@@ -108,21 +107,12 @@ fn main() {
                 num_starting_pos.append(&mut vec![(p.0, starting_index)]);
                 num_vec.append(&mut vec![num]);
             }
-
-            last_num = num;
         }
         if num_vec.len() >= 2 {
-            all_number_pairs.append(&mut vec![num_vec]);
+            nums.append(&mut vec![num_vec[0] * num_vec[1]]);
         }
     }
 
-    println!("{:?}", all_number_pairs);
-
-    let mut nums: Vec<u32> = Vec::new();
-
-    for pair in all_number_pairs {
-        nums.append(&mut vec![pair[0] * pair[1]])
-    }
     let sum: u32 = nums.iter().sum();
     println!("{}", sum);
 }
@@ -147,10 +137,10 @@ fn traverse_number(row: &Vec<char>, char_index: usize) -> (u32, usize) {
             break;
         }
     }
-    for j in start_index..row.len() {
+    for char in row.iter().skip(start_index) {
         // traverse forward to find end and collect all digits
-        if row[j].is_ascii_digit() {
-            digits.append(&mut vec![row[j]]);
+        if char.is_ascii_digit() {
+            digits.append(&mut vec![*char]);
         } else {
             break;
         }
