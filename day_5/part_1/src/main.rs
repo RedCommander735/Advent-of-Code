@@ -34,15 +34,9 @@ fn parse_file(path: &str) -> Vec<i64> {
 
     let mut maps: Vec<Vec<(Range<i64>, i64)>> = Vec::new();
 
-    println!("\nParsing {} sections.", sections.len());
-
     for (section_index, section) in sections.iter().enumerate() {
         maps.append(&mut vec![parse_section(section, section_index)])
     }
-
-    println!("Done parsing sections!");
-
-    // println!("{:?}", maps);
 
     let seeds_string: Vec<&str> = sections[0].split(":").collect();
     let mut seeds: Vec<&str> = seeds_string[1].split(" ").collect();
@@ -51,8 +45,6 @@ fn parse_file(path: &str) -> Vec<i64> {
     let seeds_parsed: Vec<i64> = seeds.iter().map(|x| x.parse::<i64>().unwrap()).collect();
 
     let mut parsed_values: Vec<i64> = Vec::new();
-
-    println!("\nParsing {} seeds.", seeds_parsed.len());
 
     for (index, seed) in seeds_parsed.iter().enumerate() {
         let mut s: i64 = *seed;
@@ -64,10 +56,8 @@ fn parse_file(path: &str) -> Vec<i64> {
                 }
             }
         }
-        println!("Done parsing seed {}.", index + 1);
         parsed_values.append(&mut vec![s]);
     }
-    println!("Done parsing seeds!");
     parsed_values
 }
 
@@ -82,13 +72,10 @@ fn parse_section(section: &str, section_index: usize) -> Vec<(Range<i64>, i64)> 
         let values: Vec<i64> = line.split(" ").map(|x| x.parse::<i64>().unwrap()).collect();
         // destination, source, range
 
-        println!("Parsing {} indecies.", values[2]);
-
         let range = values[1]..values[1] + values[2];
         let diff = values[0] - values[1];
 
         range_vec.append(&mut vec![(range, diff)]);
     }
-    println!("Done parsing section {}!", section_index + 1);
     range_vec
 }
