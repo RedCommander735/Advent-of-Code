@@ -34,7 +34,7 @@ fn parse_file(path: &str) -> Vec<i64> {
 
     let mut parsed_values: Vec<i64> = Vec::new();
 
-    for (index, seed) in seeds_parsed.iter().enumerate() {
+    for seed in &seeds_parsed {
         let mut s: i64 = *seed;
         for range_vec in &conversion_maps {
             for (range, diff) in range_vec {
