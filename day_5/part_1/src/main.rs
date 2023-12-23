@@ -1,7 +1,17 @@
-use std::collections::HashMap;
 use std::env;
 use std::fs::read_to_string;
-use std::iter::zip;
+use std::ops::Range;
+
+/*
+create ranges from start to end of source values
+
+check if range .contains value
+
+if range contains value, add difference between source and destination values
+
+done
+
+*/
 
 // TODO: Fix
 fn main() {
@@ -18,11 +28,11 @@ fn main() {
     println!("\nLowest location number: {}", output.first().unwrap())
 }
 
-fn parse_file(path: &str) -> Vec<u32> {
+fn parse_file(path: &str) -> Vec<i64> {
     let binding = read_to_string(&path).unwrap();
     let sections: Vec<&str> = binding.split("\r\n\r\n").collect();
 
-    let mut maps: Vec<Vec<HashMap<u32, u32>>> = Vec::new();
+    let mut maps: Vec<Vec<(Range<i64>, i64)>> = Vec::new();
 
     println!("\nParsing {} sections.", sections.len());
 
@@ -38,57 +48,47 @@ fn parse_file(path: &str) -> Vec<u32> {
     let mut seeds: Vec<&str> = seeds_string[1].split(" ").collect();
     seeds.retain(|&x| x != "");
 
-    let seeds_parsed: Vec<u32> = seeds.iter().map(|x| x.parse::<u32>().unwrap()).collect();
+    let seeds_parsed: Vec<i64> = seeds.iter().map(|x| x.parse::<i64>().unwrap()).collect();
 
-    let mut parsed_values: Vec<u32> = Vec::new();
+    let mut parsed_values: Vec<i64> = Vec::new();
 
     println!("\nParsing {} seeds.", seeds_parsed.len());
 
     for (index, seed) in seeds_parsed.iter().enumerate() {
-        let mut s: &u32 = seed;
-        for map_vec in &maps {
-            for hash_map in map_vec {
-                if hash_map.contains_key(&s) {
-                    s = &hash_map.get(&s).unwrap();
+        let mut s: i64 = *seed;
+        for range_vec in &maps {
+            for (range, diff) in range_vec {
+                if range.contains(&s) {
+                    s += diff;
                     break;
                 }
             }
         }
         println!("Done parsing seed {}.", index + 1);
-        parsed_values.append(&mut vec![*s]);
+        parsed_values.append(&mut vec![s]);
     }
     println!("Done parsing seeds!");
     parsed_values
 }
 
-fn parse_section(section: &str, section_index: usize) -> Vec<HashMap<u32, u32>> {
-    let mut map_vec: Vec<HashMap<u32, u32>> = Vec::new();
+fn parse_section(section: &str, section_index: usize) -> Vec<(Range<i64>, i64)> {
+    let mut range_vec: Vec<(Range<i64>, i64)> = Vec::new();
 
     for line in section.lines() {
-        let mut map: HashMap<u32, u32> = HashMap::new();
         if line.contains(":") {
             continue;
         }
 
-        let values: Vec<u32> = line.split(" ").map(|x| x.parse::<u32>().unwrap()).collect();
+        let values: Vec<i64> = line.split(" ").map(|x| x.parse::<i64>().unwrap()).collect();
+        // destination, source, range
 
         println!("Parsing {} indecies.", values[2]);
 
-        for (index, (output, input)) in zip(
-            values[0]..values[0] + values[2],
-            values[1]..values[1] + values[2],
-        )
-        .enumerate()
-        {
-            map.insert(input, output);
-            print!("\rCurrent line: {}", index + 1);
-        }
-        println!();
+        let range = values[1]..values[1] + values[2];
+        let diff = values[0] - values[1];
 
-        map_vec.append(&mut vec![map])
+        range_vec.append(&mut vec![(range, diff)]);
     }
     println!("Done parsing section {}!", section_index + 1);
-    map_vec
+    range_vec
 }
-
-
