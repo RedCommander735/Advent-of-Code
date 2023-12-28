@@ -1,4 +1,4 @@
-use std::{env, fs::read_to_string};
+use std::{env, fs::read_to_string, iter::zip};
 
 fn main() {
     let mut path = env::current_dir()
@@ -20,30 +20,36 @@ fn main() {
 fn parse_file(path: &str) -> u64 {
     let binding = read_to_string(&path).unwrap();
 
-    let mut time: u64 = 0;
-    let mut distance: u64 = 0;
+    let mut times: Vec<u64> = Vec::new();
+    let mut distances: Vec<u64> = Vec::new();
 
     for line in binding.lines() {
         if line.starts_with("Time:") {
             let line = line.strip_prefix("Time:").unwrap();
             let mut t_line: Vec<&str> = line.split(" ").collect();
             t_line.retain(|&x| x != "");
-            time = t_line.concat().parse::<u64>().unwrap();
+            times = t_line.iter().map(|x| x.parse::<u64>().unwrap()).collect();
         }
 
         if line.starts_with("Distance:") {
             let line = line.strip_prefix("Distance:").unwrap();
             let mut d_line: Vec<&str> = line.split(" ").collect();
             d_line.retain(|&x| x != "");
-            distance = d_line.concat().parse::<u64>().unwrap();
+            distances = d_line.iter().map(|x| x.parse::<u64>().unwrap()).collect();
         }
     }
 
     let mut wins: u64 = 0;
-    for x in 1..time {
-        if distance < ((time - x) * x) {
-            wins += 1;
+    let mut win_vec: Vec<u64> = Vec::new();
+
+    for (time, distance) in zip(times, distances) {
+        wins = 0;
+        for x in 1..time {
+            if distance < ((time - x) * x) {
+                wins += 1;
+            }
         }
+        win_vec.append(&mut vec![wins])
     }
-    wins
+    win_vec.iter().product()
 }
