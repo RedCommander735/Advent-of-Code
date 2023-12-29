@@ -105,6 +105,23 @@ fn parse_hands(src: &str) -> Vec<Hand> {
             }
         }
 
+        println!("{card_map:?}\n");
+
+        if card_map.contains_key(&'J') && card_map.get(&'J').unwrap() != &(5 as u8) {
+            let count = card_map.get(&'J').unwrap();
+
+            let mut highest: (char, u8) = ('2', 0);
+
+            for (card, value) in &card_map {
+                if card != &'J' && value > &highest.1 {
+                    highest = (*card, *value)
+                }
+            }
+
+            *card_map.get_mut(&highest.0).unwrap() += *count;
+            card_map.remove(&'J');
+        }
+
         let len = &card_map.len();
 
         let hand = {
