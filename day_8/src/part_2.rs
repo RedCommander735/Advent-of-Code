@@ -1,18 +1,19 @@
 use std::{collections::HashMap, fs::read_to_string};
 
-pub fn part_2(path: &str) -> i32 {
+pub fn part_2(path: &str) -> i64 {
     let binding = read_to_string(&path).unwrap();
     let lines: Vec<&str> = binding.lines().collect();
 
     let instructions = lines[0];
     let nodes = &lines[2..];
 
-    let (nodes_map, mut current_nodes) = nodes_to_map(nodes.to_vec());
+    // gleiche map wie eben plus alle starting nodes
+    let (nodes_map, current_nodes) = nodes_to_map(nodes.to_vec());
 
-    current_nodes.retain(|x| x.ends_with('A'));
-
-    let mut counter = 0;
+    let mut counters: Vec<i64> = Vec::new();
+    // part 1 für alle start nodes
     for mut node in current_nodes {
+        let mut counter = 0;
         while !node.ends_with('Z') {
             for direction in instructions.chars() {
                 counter += 1;
@@ -26,9 +27,10 @@ pub fn part_2(path: &str) -> i32 {
                 }
             }
         }
+        counters.push(counter) // alle counter sammeln
     }
 
-    counter
+    counters.iter().fold(1, |acc, x| lcm(acc, *x)) // lcm von allen values --> return value
 }
 
 fn nodes_to_map(nodes: Vec<&str>) -> (HashMap<&str, (&str, &str)>, Vec<&str>) {
@@ -49,5 +51,20 @@ fn nodes_to_map(nodes: Vec<&str>) -> (HashMap<&str, (&str, &str)>, Vec<&str>) {
         nodes_list.push(key)
     }
 
+    nodes_list.retain(|x| x.ends_with('A'));
     (map, nodes_list)
+}
+
+fn gcd(mut a: i64, mut b: i64) -> i64 {
+    let mut r = 0;
+    while a % b > 0 {
+        r = a % b;
+        a = b;
+        b = r;
+    }
+    return b;
+}
+
+fn lcm(a: i64, b: i64) -> i64 {
+    (a * b) / gcd(a, b)
 }
