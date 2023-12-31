@@ -56,11 +56,11 @@ fn nodes_to_map(nodes: Vec<&str>) -> (HashMap<&str, (&str, &str)>, Vec<&str>) {
 }
 
 fn gcd(mut a: i64, mut b: i64) -> i64 {
-    let mut r = 0;
+    let mut _r = 0;
     while a % b > 0 {
-        r = a % b;
+        _r = a % b;
         a = b;
-        b = r;
+        b = _r;
     }
     return b;
 }
