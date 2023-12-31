@@ -36,7 +36,7 @@ fn extrapolate_prev_value(line: &str) -> i32 {
     let mut last_diff = 0;
 
     for seq in &sequences {
-        last_diff -= seq.first().unwrap()
+        last_diff = seq.first().unwrap() - last_diff
     }
 
     last_diff
