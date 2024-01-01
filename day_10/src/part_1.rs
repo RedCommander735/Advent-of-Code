@@ -1,18 +1,18 @@
 use std::fs::read_to_string;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct Pos {
     x: usize,
     y: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Cell {
     pos: Pos,
     char: char,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 enum Direction {
     North,
     East,
@@ -76,12 +76,23 @@ pub fn main(path: &str) -> i32 {
 
         starting_points.push((cell, Direction::West));
     }
+    let mut dist = 0;
 
-    for (mut cell, mut from_direction) in starting_points {
-        (cell, from_direction) = traverse(grid.clone(), cell, from_direction);
-    }
+    let distance = loop {
+        dist += 1;
+        let mut new_points: Vec<(Cell, Direction)> = Vec::new();
+        for (cell, from_direction) in starting_points {
+            let new = traverse(grid.clone(), cell, from_direction);
+            new_points.push(new)
+        }
+        starting_points = new_points;
 
-    todo!()
+        if &starting_points[0].0.pos == &starting_points[1].0.pos {
+            break dist;
+        }
+    };
+
+    distance + 1
 }
 
 fn traverse(
@@ -89,11 +100,48 @@ fn traverse(
     starting_cell: Cell,
     from_direction: Direction,
 ) -> (Cell, Direction) {
-    /*
-    TODO:
-    - Implement actual traversing (only possible direction for each char)
-     */
-    todo!()
+    let x = starting_cell.pos.x;
+    let y = starting_cell.pos.y;
+
+    let char = starting_cell.char;
+
+    let next: (Pos, Direction) = match from_direction {
+        Direction::North => match char {
+            '|' => Some((Pos { x, y: y + 1 }, Direction::North)),
+            'L' => Some((Pos { x: x + 1, y }, Direction::West)),
+            'J' => Some((Pos { x: x - 1, y }, Direction::East)),
+            _ => None,
+        },
+        Direction::East => match char {
+            '-' => Some((Pos { x: x - 1, y }, Direction::East)),
+            'L' => Some((Pos { x, y: y - 1 }, Direction::South)),
+            'F' => Some((Pos { x, y: y + 1 }, Direction::North)),
+            _ => None,
+        },
+        Direction::South => match char {
+            '|' => Some((Pos { x, y: y - 1 }, Direction::South)),
+            '7' => Some((Pos { x: x - 1, y }, Direction::East)),
+            'F' => Some((Pos { x: x + 1, y }, Direction::West)),
+            _ => None,
+        },
+        Direction::West => match char {
+            '-' => Some((Pos { x: x + 1, y }, Direction::West)),
+            'J' => Some((Pos { x, y: y - 1 }, Direction::South)),
+            '7' => Some((Pos { x, y: y + 1 }, Direction::North)),
+            _ => None,
+        },
+    }
+    .unwrap();
+
+    let next_pos = next.0;
+    let next_dir = next.1;
+
+    let next_cell: Cell = Cell {
+        pos: next_pos.clone(),
+        char: grid[next_pos.y][next_pos.x],
+    };
+
+    (next_cell, next_dir)
 }
 
 fn establish_grid(lines: Vec<&str>) -> (Vec<Vec<char>>, Pos) {

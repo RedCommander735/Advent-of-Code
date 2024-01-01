@@ -4,7 +4,7 @@ use std::env;
 
 fn main() {
     let mut path = env::current_dir().unwrap();
-    path.push("example");
+    path.push("input");
 
     let output = match path.to_str() {
         None => panic!("path is not a valid UTF-8 sequence"),
