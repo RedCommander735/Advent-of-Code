@@ -1,19 +1,19 @@
 use std::fs::read_to_string;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Pos {
-    x: usize,
-    y: usize,
+pub struct Pos {
+    pub x: usize,
+    pub y: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
-struct Cell {
-    pos: Pos,
-    char: char,
+pub struct Cell {
+    pub pos: Pos,
+    pub char: char,
 }
 
 #[derive(Debug, Clone, Copy)]
-enum Direction {
+pub enum Direction {
     North,
     East,
     South,
@@ -95,7 +95,7 @@ pub fn main(path: &str) -> i32 {
     distance + 1
 }
 
-fn traverse(
+pub fn traverse(
     grid: Vec<Vec<char>>,
     starting_cell: Cell,
     from_direction: Direction,
@@ -144,7 +144,7 @@ fn traverse(
     (next_cell, next_dir)
 }
 
-fn establish_grid(lines: Vec<&str>) -> (Vec<Vec<char>>, Pos) {
+pub fn establish_grid(lines: Vec<&str>) -> (Vec<Vec<char>>, Pos) {
     let mut grid: Vec<Vec<char>> = Vec::new();
     let mut start: Pos = Pos { x: 0, y: 0 }; // x, y
     for (y, line) in lines.iter().enumerate() {
